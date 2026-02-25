@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    # 连你本地电脑的 MySQL
+    url: jdbc:mysql://localhost:3306/etread?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: liu123
+  servlet:
+    multipart:
+      max-file-size: 10MB # 允许传 10MB 的头像
+
+# MinIO 配置（这里写了，common里的 MinioUtil 就能读到）
+minio:
+  endpoint: http://localhost:9000
+  accessKey: minioadmin
+  secretKey: minioadmin
