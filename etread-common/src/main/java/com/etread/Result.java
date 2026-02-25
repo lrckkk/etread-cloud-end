@@ -1,4 +1,4 @@
-package com.etread.common;
+package com.etread;
 import lombok.Data;
 
 @Data

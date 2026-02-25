@@ -7,5 +7,5 @@ import com.etread.entity.User;
 
 public interface UserService extends IService<User> {
 
-    void register(RegisterDTO dto);
+    String register(RegisterDTO dto);
 }

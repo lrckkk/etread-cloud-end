@@ -1,4 +1,4 @@
-package com.etread.common;
+package com.etread;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;

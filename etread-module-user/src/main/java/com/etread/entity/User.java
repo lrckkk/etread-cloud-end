@@ -10,7 +10,7 @@ import java.util.Date;
 @TableName("sys_user")
 public class User {
     @TableId(type = IdType.AUTO)
-    private String user_id;
+    private Long user_id;
 
     private String password;
 
@@ -18,7 +18,7 @@ public class User {
 
     private String avatar;
 
-    private Date creatime;
+    private Date createtime;
 
     private String account;
 
