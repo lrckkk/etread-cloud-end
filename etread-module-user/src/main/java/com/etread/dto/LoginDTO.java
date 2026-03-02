@@ -12,4 +12,5 @@ public class LoginDTO {
     @NotBlank(message = "无密码登录？")
     @Size(min=6,max=20)
     private String password;
+    private String token;
 }

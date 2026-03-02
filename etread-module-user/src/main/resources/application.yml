@@ -1,34 +1,3 @@
 server:
   port: 8081
 
-spring:
-
-    #redis配置
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      database: 0
-      password:      # 如果没有密码，留空即可
-      timeout: 3000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          max-wait: -1ms
-          min-idle: 0
-
-  datasource:
-    # 连你本地电脑的 MySQL
-    url: jdbc:mysql://localhost:3306/etread?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: liu123
-  servlet:
-    multipart:
-      max-file-size: 10MB # 允许传 10MB 的头像
-
-# MinIO 配置（这里写了，common里的 MinioUtil 就能读到）
-minio:
-  endpoint: http://localhost:9000
-  accessKey: minioadmin
-  secretKey: minioadmin

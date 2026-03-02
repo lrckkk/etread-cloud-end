@@ -21,6 +21,7 @@ public class GlobalWebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/auth/login",
                         "/auth/register",
+                        "/auth/logout",
                         "/doc.html",
                         "/webjars/**",
                         "/swagger-resources/**",

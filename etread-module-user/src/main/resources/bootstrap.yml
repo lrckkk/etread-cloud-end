@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: etread-user
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8048
+      config:
+        server-addr: 127.0.0.1:8048
+        file-extension: yaml

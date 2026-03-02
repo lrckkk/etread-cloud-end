@@ -30,6 +30,11 @@ public class AuthController {
             String token = userVO.getToken();
             System.out.println("token:"+token);
             return Result.success("登录成功！",userVO);
-
+    }
+    @PostMapping("/logout")
+    public Result logout(LoginDTO dto) {
+        // 安全！只能销毁发起请求者自己的凭证
+        userService.logout(dto);
+        return Result.success("登出成功",null);
     }
 }

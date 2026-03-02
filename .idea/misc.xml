@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/etread-module-user/pom.xml" />
         <option value="$PROJECT_DIR$/etread-common/pom.xml" />
+        <option value="$PROJECT_DIR$/etread-module-book/pom.xml" />
       </list>
     </option>
   </component>

@@ -111,6 +111,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserVO userVO=converUserToVO(user,token);
         return userVO;
     }
+    //退出登录
+    @Override
+    public void logout(LoginDTO dto){
+        String token=dto.getToken();
+        String key = AuthConstant.LOGIN_TOKEN_PREFIX+token;
+        redisUtil.delete(key);
+    }
+
 
 
 
