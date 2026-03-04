@@ -2,6 +2,8 @@ package com.etread.parser;
 
 import com.etread.parser.impl.EpubBookParser;
 import com.etread.utils.MinioUtil;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.epub.EpubReader;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -11,6 +13,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -65,14 +69,19 @@ public class EpubBookParserTest {
         for (int i = 0; i < Math.min(19, chapters.size()); i++) {
             System.out.println(" - " + chapters.get(i).getTitle() + " (" + chapters.get(i).getHref() + ")");
         }
-
+        Book epubBook=null;
         System.out.println("\n=== 2. 测试内容解析 (前6章) ===");
+        try (final FileInputStream fis = new FileInputStream(file)){
+            epubBook=new EpubReader().readEpub(fis);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         for (int i = 0; i < Math.min(19, chapters.size()); i++) {
             ChapterMetadata meta = chapters.get(i);
             System.out.println("\n--- 解析章节: " + meta.getTitle() + " ---");
             try {
                 // 传入虚拟 bookId，MinIO 中会生成路径 books/1001/...
-                String content = parser.parseContent(file, meta, 1001L);
+                String content = parser.parseContent(epubBook, meta, 1001L);
 
                 // 打印前 900 个字符预览
                 System.out.println("内容预览:\n" + (content.length() > 10000 ? content.substring(0, 900) + "..." : content));

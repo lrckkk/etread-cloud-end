@@ -39,35 +39,24 @@ public class EpubBookParser implements BookParser {
             Book book = reader.readEpub(fis);
             List<ChapterMetadata> list = new ArrayList<>();
 
-            // 1. 预处理 TOC，建立 href -> title 的映射 (去除锚点)
             Map<String, String> tocMap = new HashMap<>();
             List<TOCReference> toc = book.getTableOfContents().getTocReferences();
             if (toc != null) {
                 buildTocMapRecursive(toc, tocMap);
             }
 
-            // 2. 遍历 Spine，合并连续的非 TOC 页面
             List<SpineReference> spineRefs = book.getSpine().getSpineReferences();
-            
             for (SpineReference ref : spineRefs) {
                 Resource res = ref.getResource();
                 String href = removeAnchor(res.getHref());
-                
-                // 判断是否是 TOC 中定义的新章节起点
                 boolean isNewChapter = tocMap.containsKey(href) || list.isEmpty();
 
                 if (isNewChapter) {
-                    // 创建新章节
                     String title = tocMap.get(href);
-                    if (title == null || title.isEmpty()) {
-                        title = extractTitleFromHtml(res);
-                    }
-                    if (title == null || title.isEmpty()) {
-                        title = "章节-" + (list.size() + 1);
-                    }
+                    if (title == null || title.isEmpty()) title = extractTitleFromHtml(res);
+                    if (title == null || title.isEmpty()) title = "章节-" + (list.size() + 1);
                     list.add(new ChapterMetadata(title, 0, 0, href));
                 } else {
-                    // 归属到上一章 (作为子页面)
                     ChapterMetadata lastChapter = list.get(list.size() - 1);
                     lastChapter.addSubHref(href);
                 }
@@ -133,6 +122,20 @@ public class EpubBookParser implements BookParser {
         } catch (IOException e) {
             throw new RuntimeException("EPUB内容解析失败", e);
         }
+    }
+    public String parseContent(Book book, ChapterMetadata meta, Long bookId) {
+        StringBuilder fullContent = new StringBuilder();
+
+        // 1. 解析主页面
+        fullContent.append(parseOneResource(book, meta.getHref(), bookId));
+
+        // 2. 解析子页面 (如果有)
+        if (meta.getSubHrefs() != null) {
+            for (String subHref : meta.getSubHrefs()) {
+                fullContent.append(parseOneResource(book, subHref, bookId));
+            }
+        }
+        return fullContent.toString();
     }
 
     private String parseOneResource(Book book, String href, Long bookId) {

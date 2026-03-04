@@ -3,6 +3,7 @@ package com.etread.parser.impl;
 import com.etread.parser.BookParser;
 import com.etread.parser.ChapterMetadata;
 import lombok.extern.slf4j.Slf4j;
+import nl.siegmann.epublib.domain.Book;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -89,5 +90,9 @@ public class TxtBookParser implements BookParser {
         } catch (IOException e) {
             throw new RuntimeException("读取TXT内容失败", e);
         }
+    }
+    @Override
+    public String parseContent(Book book, ChapterMetadata metadata, Long bookId){
+        return "";
     }
 }
