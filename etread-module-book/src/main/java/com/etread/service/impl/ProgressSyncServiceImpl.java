@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -116,6 +118,65 @@ public class ProgressSyncServiceImpl implements ProgressSyncService {
         }
 
         return new ProgressVO(userId, bookId, null, 0F, null);
+    }
+
+    @Override
+    public List<ProgressVO> getAllProgress(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId 不能为空");
+        }
+
+        List<ProgressVO> result = new ArrayList<>();
+
+        // 先从 Redis 获取用户的所有进度
+        Set<String> keys = stringRedisTemplate.keys(PROGRESS_KEY_PREFIX + userId + ":*");
+        if (keys != null && !keys.isEmpty()) {
+            for (String key : keys) {
+                String progressJson = stringRedisTemplate.opsForValue().get(key);
+                if (progressJson != null && !progressJson.isEmpty()) {
+                    ProgressCacheVO cacheVO = JSON.parseObject(progressJson, ProgressCacheVO.class);
+                    ProgressVO vo = new ProgressVO();
+                    vo.setUserId(userId);
+                    vo.setBookId(cacheVO.getBookId());
+                    vo.setCurrentChapterId(cacheVO.getCurrentChapterId());
+                    vo.setReadPercentage(cacheVO.getReadPercentage());
+                    vo.setLastReadTime(cacheVO.getLastReadTime());
+                    result.add(vo);
+                }
+            }
+        }
+
+        // 从 MySQL 获取用户书架中的书籍进度
+        List<UserBookshelf> shelves = userBookshelfMapper.selectList(
+                new LambdaQueryWrapper<UserBookshelf>()
+                        .eq(UserBookshelf::getUserId, userId)
+                        .isNotNull(UserBookshelf::getLastReadTime)
+        );
+
+        for (UserBookshelf shelf : shelves) {
+            final Long bookId = shelf.getBookId();
+            boolean exists = result.stream().anyMatch(v -> v.getBookId().equals(bookId));
+            if (!exists) {
+                ProgressVO vo = new ProgressVO();
+                vo.setUserId(userId);
+                vo.setBookId(bookId);
+                vo.setCurrentChapterId(shelf.getCurrentChapterId());
+                vo.setReadPercentage(shelf.getReadPercentage());
+                vo.setLastReadTime(shelf.getLastReadTime());
+                result.add(vo);
+            }
+        }
+
+        // 按最后阅读时间倒序
+        result.sort((a, b) -> {
+            if (a.getLastReadTime() == null && b.getLastReadTime() == null) return 0;
+            if (a.getLastReadTime() == null) return 1;
+            if (b.getLastReadTime() == null) return -1;
+            return b.getLastReadTime().compareTo(a.getLastReadTime());
+        });
+
+        log.debug("getAllProgress: userId={}, count={}", userId, result.size());
+        return result;
     }
 
     @Override

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/book")
@@ -61,6 +63,19 @@ public class ProgressController {
             return Result.success("查询成功", progressVO);
         } catch (Exception e) {
             log.error("error getting progress", e);
+            return Result.error("查询失败: " + e.getMessage());
+        }
+    }
+    // 获取用户所有阅读历史
+    @GetMapping("/progress/history")
+    public Result<List<ProgressVO>> getProgressHistory(@RequestHeader("token") String token) {
+        Long userId = bookUserResolver.requireUserId(token);
+
+        try {
+            List<ProgressVO> progressList = progressSyncService.getAllProgress(userId);
+            return Result.success("查询成功", progressList);
+        } catch (Exception e) {
+            log.error("error getting progress history", e);
             return Result.error("查询失败: " + e.getMessage());
         }
     }
